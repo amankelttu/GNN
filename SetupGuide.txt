@@ -1,0 +1,21 @@
+In the process of trying to get this and other ParticleNet-based GNNs up and running on the HPCC, I came to realize that the documentation available was incredibly deficient. 
+Thus, I am writing this to make setup for others who work on machine learning projects for the APD on the HPCC an easier and smoother process. 
+If you experience any difficulties with using this guide and I am no longer working at the APD, feel free to reach me at anzejmc@gmail.com, and I will try to respond as quickly as possible. 
+Additionally, if any part of my explanation goes out of date, or if you must go through the first part of this process on MacOS, please make an addendum or edit to help out the researchers who come after you. They will certainly appreciate it. 
+
+There are a handful of applications which must be installed before embarking on this journey. These are:
+
+1. WSL (Windows Subsystem for Linux; if you are already on Linux, you may forgo this step)
+Run Windows Powershell as an administrator, and then enter the following command: "wsl --install" (without quotes). Windows should handle the rest of the installation for you. If you need any more information, this link is a helpful resource: "https://learn.microsoft.com/en-us/windows/wsl/install". This is important because the HPCC servers may only be acccessed via Secure Shell (SSH) in Linux (for the most part, though if you are on campus, there is somewhat of a better alternative, which I will touch on later).
+2. GlobusConnect 
+Install the software from this link: "https://www.globus.org/globus-connect-personal". You must use this (as per requirement by the HPCC) to transfer files to and from the HPCC. You will also need to create a Globus account.
+3. VSCode (Optional, but recommended)
+This is pretty straightforward (use this link: "https://code.visualstudio.com/"), but there are a couple of other useful extensions you should get on your instance of VSCode. Of course, this is nowhere near an exhaustive list, but these (Python, Jupyter, RemoteSSH) are sort of the required installs if you want to use VSCode for this purpose. VSCode is desirable because it allows you to create, edit, and run your code with a graphical interface and generally makes file navigation on the HPCC faster and more intuitive. Even better, as long as you create an interactive environment with the command "interactive -p <enter partition name>" (example partition names are "nocona", which only has CPUs, and "matador", which has GPUs and CPUs), you can easily run Jupyter notebooks on the HPCC (this method is leagues more consistent than what is officially suggested by the HPCC, in my experience). 
+
+I won't really go over connecting to the HPCC, as I believe the standard instructions are sufficient. To use Remote SSH on VSCode, follow the instructions here: "https://code.visualstudio.com/docs/remote/ssh". To learn how to login to the HPCC on WSL, use this link "https://www.depts.ttu.edu/hpcc/userguides/general_guides/login_general.php". 
+
+For learning how to create bash scripts and such on the HPCC, the standard instructions are fairly good and worth a read ("https://www.depts.ttu.edu/hpcc/about/HPCC_New_User_Training_2_Mar22.pdf", "https://www.depts.ttu.edu/hpcc/userguides/JobSubmission.php", and "https://www.depts.ttu.edu/hpcc/userguides/Job_User_Guide.pdf"), but I will paste my bash script below. To make use of it, you will need to replace environment names, filenames, and filepaths as needed. Make sure to end the file name with ".sh" so that you can actually run the script. Then, you just run the command "sbatch <filename with file extension>" in the terminal. To see what files you have in the queue, you can use "squeue -u <eraider username>" 
+
+
+
+
