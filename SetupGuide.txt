@@ -14,8 +14,56 @@ This is pretty straightforward (use this link: "https://code.visualstudio.com/")
 
 I won't really go over connecting to the HPCC, as I believe the standard instructions are sufficient. To use Remote SSH on VSCode, follow the instructions here: "https://code.visualstudio.com/docs/remote/ssh". To learn how to login to the HPCC on WSL, use this link "https://www.depts.ttu.edu/hpcc/userguides/general_guides/login_general.php". 
 
-For learning how to create bash scripts and such on the HPCC, the standard instructions are fairly good and worth a read ("https://www.depts.ttu.edu/hpcc/about/HPCC_New_User_Training_2_Mar22.pdf", "https://www.depts.ttu.edu/hpcc/userguides/JobSubmission.php", and "https://www.depts.ttu.edu/hpcc/userguides/Job_User_Guide.pdf"), but I will paste my bash script below. To make use of it, you will need to replace environment names, filenames, and filepaths as needed. Make sure to end the file name with ".sh" so that you can actually run the script. Then, you just run the command "sbatch <filename with file extension>" in the terminal. To see what files you have in the queue, you can use "squeue -u <eraider username>" 
+For learning how to create bash scripts and such on the HPCC, the standard instructions are fairly good and worth a read ("https://www.depts.ttu.edu/hpcc/about/HPCC_New_User_Training_2_Mar22.pdf", "https://www.depts.ttu.edu/hpcc/userguides/JobSubmission.php", and "https://www.depts.ttu.edu/hpcc/userguides/Job_User_Guide.pdf"), but I will paste my bash script below. To make use of it, you will need to replace environment names, filenames, and filepaths as needed. Make sure to end the file name with ".sh" so that you can actually run the script. Then, you just run the command "sbatch <filename with file extension>" in the terminal. To see what files you have in the queue, you can use "squeue -u <eraider username>". To see the entire queue for a certain partition, use "squeue -p <partition name>". Anyway, my bash script is below:
 
+#!/bin/bash
+#SBASH -J <what you want to call your job>
+#SBATCH -o %x.o%j
+#SBATCH -e %x.e%j
+#SBATCH -p matador
+#SBATCH -N 1
+#SBATCH --ntasks-per-node=16
+#SBATCH --gpus-per-node=2
+#SBATCH --mail-user=<enter TTU email address>
 
+. $HOME/conda/etc/profile.d/conda.sh
+conda activate tf-gpu
+cd /home/<eraider username>/<filepath of directory that contains file>
+python <filename of python file you want to run on the HPCC>.py
 
+Simply replace what is in brackets with the information appropriate for your task. The cd command, which means "change directory", allows you to change your operating directory, and you may use the command "ls" to list the files and folders in a directory. 
 
+At this point, you may have noticed that I used a conda environment. Specifically, I activated the environment "tf-gpu" in line 30. You must do this so that any packages you have downloaded will be usable while running your python file. To create the conda environment use these commands:
+
+/lustre/work/examples/InstallPython.sh
+. $HOME/conda/etc/profile.d/conda.sh
+conda create --name tf-gpu python=3.9
+
+If you wish to use a different python version, tread very carefully, as you will probably have to resolve inconsistent module versions. On that note, If you have any difficulties with package version dependencies, you can use the command:
+
+conda search --info <name of package you are unsuccessfully trying to install> | grep -E '(^version|<name of package causing issues>)'
+
+With that out of the way, you may now install the most important packages for working on machine learning projects at the APD with these commands (make sure you do not do these out of order; the HPCC can be very tempermental):
+
+conda activate tf-gpu
+conda install tensorflow-gpu
+conda install conda=23.7.0
+conda install -c anaconda cudatoolkit
+conda install -c anaconda cudnn
+conda install -c conda-forge awkward
+conda install pillow
+conda install matplotlib
+conda install numpy=1.19.2
+conda install pandas=1.3.4
+
+Also, if you want to install any more packages, make sure you activate your conda environment before you download anything, as otherwise python will fail to recognize them. 
+
+To make sure that you are in fact using GPU (necessary for efficient and fast training), join an interactive environment on matador, run the following line in the terminal, and then exit the node with the command "exit" in the terminal:
+
+python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+
+If you are not running GPU, the final line that you will see is "[]", whereas if everything is functioning as it should, your list should be nonempty. Now you just need to look at the readme file in the github to obtain the training data. The data will be in /lustre/research/hep/, which is owned by Dr. Kunori. Shoot him an email at Shuichi.Kunori@ttu.edu to ask him about access to the folder.
+
+Finally, if you ever find you are having trouble getting the HPCC to recognize GPUs, or running any bit of code, do not be afraid to delete all of your conda files with "rm -rf <Directory or file name>" and do a fresh install. I promise that many times it will be far more productive than trying to figure out what the problem actually is.
+
+Happy coding!
